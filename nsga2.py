@@ -38,6 +38,7 @@ class NSG2:
 
             train_acc = arch.train_model(train_loader)
             test_acc = arch.evaluate_accuracy(test_loader)
+            print(f'trained arch {_}')
 
             max_hs = max(hidden_sizes)
             min_hs = min(hidden_sizes)

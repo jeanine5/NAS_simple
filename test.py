@@ -1,54 +1,43 @@
+import pandas as pd
+import numpy as np
+import torch
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, TensorDataset
+
+from nsga2 import NSG2
 import os
 
-import pandas as pd
-import requests
-from sklearn.model_selection import train_test_split
-import torch
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+# Load the dataset
+curr_dir = os.getcwd()
+data = pd.read_csv(curr_dir + '/Prevalences.csv')
 
-from nsga2 import *
+# Convert the 'Culture' column to categorical type
+data.Culture = data.Culture.astype('category')
 
-def download_iris_dataset(url, filename):
-    response = requests.get(url, verify=False)  # Bypass SSL verification
-    with open(filename, 'wb') as file:
-        file.write(response.content)
+# Extract features and target variables
+X = data.iloc[:, 7:].values
+y = data.iloc[:, 3].values
 
-if not os.path.exists('iris.csv'):
-    print("Downloading and saving the Iris dataset...")
-    # Define the URL of the dataset
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
-    download_iris_dataset(url, 'iris.csv')
-else:
-    print("Iris dataset found, loading...")
-
-# Step 1: Load the CSV file
-df = pd.read_csv('iris.csv', header=None)
-df.columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
-
-# Step 2: Preprocess the dataset
-# Convert class labels to integers
+# Convert target to categorical labels
 label_encoder = LabelEncoder()
-df['class'] = label_encoder.fit_transform(df['class'])
+y = label_encoder.fit_transform(y)
 
-# Step 3: Split features and labels
-X = df.drop('class', axis=1).values
-y = df['class'].values
-
-# Step 4: Normalize features
+# Normalize the features
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
 
-# Step 5: Split into train and test sets
+# Split the data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Step 6: Convert to PyTorch tensors
+# Convert the datasets to PyTorch tensors
 X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
 y_train_tensor = torch.tensor(y_train, dtype=torch.long)
 X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
 y_test_tensor = torch.tensor(y_test, dtype=torch.long)
 
-# Step 7: Create DataLoader
+# Create PyTorch DataLoader
 train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
 test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
 
@@ -56,14 +45,14 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 # Example usage
-population_size = 100
+population_size = 7
 generations = 5
 crossover_factor = 0.9
 mutation_factor = 0.1
 max_hidden_layers = 5
 max_hidden_size = 100
 
-# Initialize NSG2 instance
+# Initialize NSG2 instance (assuming nsga2.py defines this class)
 nsga2 = NSG2(population_size, generations, crossover_factor, mutation_factor)
 
 # Evolve the population

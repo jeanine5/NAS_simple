@@ -33,7 +33,7 @@ class NeuralNetwork(nn.Module):
             input_size = hidden_size
 
         self.output_layer = nn.Sequential(
-            nn.Linear(input_size, 3),
+            nn.Linear(input_size, 8),
             nn.Sigmoid()
         )
 
