@@ -45,8 +45,8 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 # Example usage
-population_size = 7
-generations = 5
+population_size = 100
+generations = 10
 crossover_factor = 0.9
 mutation_factor = 0.1
 max_hidden_layers = 5
@@ -60,4 +60,8 @@ best_population = nsga2.evolve(train_loader, test_loader, max_hidden_layers, max
 
 # Print results
 for i, arch in enumerate(best_population):
-    print(f"Individual {i} - Non-dominated Rank: {arch.nondominated_rank}, Crowding Distance: {arch.crowding_distance}, Test Accuracy: {arch.acc_objective}")
+    train_acc = arch.train_model(train_loader)
+    test_acc = arch.evaluate_accuracy(test_loader)
+    print(f"Individual {i} - Non-dominated Rank: {arch.nondominated_rank}, Crowding Distance: {arch.crowding_distance}, Test Accuracy: {test_acc}")
+    print(f"Hidden Size: {arch.hidden_sizes}, Activation: {arch.activation}")
+    print("")
